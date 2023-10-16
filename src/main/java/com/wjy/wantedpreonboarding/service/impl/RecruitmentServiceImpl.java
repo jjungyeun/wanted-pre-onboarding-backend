@@ -59,7 +59,9 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     @Override
     @Transactional
     public void deleteRecruitment(Long recruitmentId) {
-
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+                .orElseThrow(RecruitmentNotFoundException::new);
+        recruitmentRepository.delete(recruitment);
     }
 
     @Override

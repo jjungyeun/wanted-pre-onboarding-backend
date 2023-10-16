@@ -141,4 +141,29 @@ class RecruitmentServiceImplTest {
                 recruitmentService.editRecruitment(recruitmentId, editDto));
 
     }
+
+    @Test
+    @DisplayName("채용공고를 삭제한다.")
+    public void deleteRecruitment() {
+        // given
+        Long recruitmentId = 1L;
+        Recruitment recruitment = mock(Recruitment.class);
+        when(recruitmentRepository.findById(recruitmentId)).thenReturn(Optional.of(recruitment));
+
+        // when & then
+        recruitmentService.deleteRecruitment(recruitmentId);
+    }
+
+    @Test
+    @DisplayName("채용공고가 존재하지 않아 삭제에 실패한다.")
+    public void deleteRecruitment_noRecruitment() {
+        // given
+        Long recruitmentId = 1L;
+        when(recruitmentRepository.findById(recruitmentId)).thenReturn(Optional.empty());
+
+        // when & then
+        Assertions.assertThrows(RecruitmentNotFoundException.class, () ->
+                recruitmentService.deleteRecruitment(recruitmentId));
+
+    }
 }
