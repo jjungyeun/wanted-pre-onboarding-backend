@@ -7,6 +7,7 @@ import com.wjy.wantedpreonboarding.dto.res.RecruitmentSearchResponseDto;
 import com.wjy.wantedpreonboarding.entity.Company;
 import com.wjy.wantedpreonboarding.entity.Recruitment;
 import com.wjy.wantedpreonboarding.exception.custom.CompanyNotFoundException;
+import com.wjy.wantedpreonboarding.exception.custom.RecruitmentNotFoundException;
 import com.wjy.wantedpreonboarding.repository.CompanyApplicationRepository;
 import com.wjy.wantedpreonboarding.repository.CompanyRepository;
 import com.wjy.wantedpreonboarding.repository.MemberRepository;
@@ -48,7 +49,11 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     @Override
     @Transactional
     public void editRecruitment(Long recruitmentId, RecruitmentEditDto editDto) {
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+                .orElseThrow(RecruitmentNotFoundException::new);
 
+        recruitment.editDetail(editDto.getPosition(), editDto.getReward(),
+                editDto.getContents(),editDto.getSkill());
     }
 
     @Override
