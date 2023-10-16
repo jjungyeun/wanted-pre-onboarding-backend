@@ -19,6 +19,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -71,7 +74,26 @@ public class RecruitmentServiceImpl implements RecruitmentService {
 
     @Override
     public RecruitmentDetailResponseDto getRecruitmentDetail(Long recruitmentId) {
-        return null;
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+                .orElseThrow(RecruitmentNotFoundException::new);
+
+        Company company = recruitment.getCompany();
+        List<Long> otherRecruitmentIds = company.getRecruitments().stream()
+                .map(Recruitment::getId)
+                .filter(id -> !Objects.equals(id, recruitmentId))
+                .toList();
+
+        return RecruitmentDetailResponseDto.builder()
+                .recruitmentId(recruitmentId)
+                .companyName(company.getName())
+                .country(company.getCountry())
+                .region(company.getRegion())
+                .position(recruitment.getPosition())
+                .reward(recruitment.getReward())
+                .skill(recruitment.getSkill())
+                .contents(recruitment.getContents())
+                .otherRecruitments(otherRecruitmentIds)
+                .build();
     }
 
     @Override

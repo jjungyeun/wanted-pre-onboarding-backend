@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,6 +27,9 @@ public class Company {
 
     @Column(nullable = false)
     private String region;
+
+    @OneToMany(mappedBy = "company")
+    private List<Recruitment> recruitments = new ArrayList<>();
 
     @Builder
     public Company(String name, String country, String region) {
