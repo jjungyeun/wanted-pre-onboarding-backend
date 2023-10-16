@@ -48,7 +48,7 @@ public class RecruitmentController {
 
     @GetMapping
     public ResponseEntity<List<RecruitmentSearchResponseDto>> search(
-            @RequestParam String search) {
+            @RequestParam(required = false) String search) {
         List<RecruitmentSearchResponseDto> searchResponses = recruitmentService.searchRecruitment(search);
         return ResponseEntity.ok(searchResponses);
     }
