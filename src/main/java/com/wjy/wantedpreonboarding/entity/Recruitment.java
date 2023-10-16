@@ -42,9 +42,9 @@ public class Recruitment {
     }
 
     public void editDetail(String position, Integer reward, String contents, String skill) {
-        if (!position.isBlank()) this.position = position;
+        if (position != null && !position.isBlank()) this.position = position;
         if (reward != null) this.reward = reward;
-        if (!contents.isBlank()) this.contents = contents;
-        if (!skill.isBlank()) this.skill = skill;
+        if (contents != null && !contents.isBlank()) this.contents = contents;
+        if (skill != null && !skill.isBlank()) this.skill = skill;
     }
 }
