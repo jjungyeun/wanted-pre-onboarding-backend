@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class RecruitmentEditDto {
     private String position;
-    private int reward;
+    private Integer reward;
     private String contents;
     private String skill;
 }
