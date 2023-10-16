@@ -13,6 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/recruitments")
 @RequiredArgsConstructor
@@ -45,12 +47,9 @@ public class RecruitmentController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<RecruitmentSearchResponseDto>> search(
-            @RequestParam String search,
-            @RequestParam int page,
-            @RequestParam int size
-    ) {
-        Page<RecruitmentSearchResponseDto> searchResponses = recruitmentService.searchRecruitment(search, PageRequest.of(page, size));
+    public ResponseEntity<List<RecruitmentSearchResponseDto>> search(
+            @RequestParam String search) {
+        List<RecruitmentSearchResponseDto> searchResponses = recruitmentService.searchRecruitment(search);
         return ResponseEntity.ok(searchResponses);
     }
 
