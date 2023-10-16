@@ -1,9 +1,11 @@
 package com.wjy.wantedpreonboarding.service.impl;
 
 import com.wjy.wantedpreonboarding.dto.req.RecruitmentCreateDto;
+import com.wjy.wantedpreonboarding.dto.req.RecruitmentEditDto;
 import com.wjy.wantedpreonboarding.entity.Company;
 import com.wjy.wantedpreonboarding.entity.Recruitment;
 import com.wjy.wantedpreonboarding.exception.custom.CompanyNotFoundException;
+import com.wjy.wantedpreonboarding.exception.custom.RecruitmentNotFoundException;
 import com.wjy.wantedpreonboarding.repository.CompanyApplicationRepository;
 import com.wjy.wantedpreonboarding.repository.CompanyRepository;
 import com.wjy.wantedpreonboarding.repository.MemberRepository;
@@ -89,5 +91,54 @@ class RecruitmentServiceImplTest {
 
         // when & then
         Assertions.assertThrows(CompanyNotFoundException.class, () -> recruitmentService.createRecruitment(createDto));
+    }
+
+    @Test
+    @DisplayName("채용공고를 수정한다.")
+    public void editRecruitment() {
+        // given
+        Long recruitmentId = 1L;
+        String position = "백엔드 주니어 개발자";
+        int reward = 1500000;
+        String contents = "원티드랩에서 백엔드 주니어 개발자를 채용합니다.";
+        String skill = "Django";
+
+        RecruitmentEditDto editDto = RecruitmentEditDto.builder()
+                .position(position)
+                .reward(reward)
+                .contents(contents)
+                .skill(skill)
+                .build();
+
+        Recruitment recruitment = mock(Recruitment.class);
+        when(recruitmentRepository.findById(recruitmentId)).thenReturn(Optional.of(recruitment));
+
+        // when & then
+        recruitmentService.editRecruitment(recruitmentId, editDto);
+    }
+
+    @Test
+    @DisplayName("채용공고가 존재하지 않아 수정에 실패한다.")
+    public void editRecruitment_noRecruitment() {
+        // given
+        Long recruitmentId = 1L;
+        String position = "백엔드 주니어 개발자";
+        int reward = 1500000;
+        String contents = "원티드랩에서 백엔드 주니어 개발자를 채용합니다.";
+        String skill = "Django";
+
+        RecruitmentEditDto editDto = RecruitmentEditDto.builder()
+                .position(position)
+                .reward(reward)
+                .contents(contents)
+                .skill(skill)
+                .build();
+
+        when(recruitmentRepository.findById(recruitmentId)).thenReturn(Optional.empty());
+
+        // when & then
+        Assertions.assertThrows(RecruitmentNotFoundException.class, () ->
+                recruitmentService.editRecruitment(recruitmentId, editDto));
+
     }
 }
