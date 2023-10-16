@@ -19,6 +19,7 @@ import com.wjy.wantedpreonboarding.repository.RecruitmentRepository;
 import com.wjy.wantedpreonboarding.service.RecruitmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,8 +74,28 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     }
 
     @Override
-    public Page<RecruitmentSearchResponseDto> searchRecruitment(String query, Pageable pageable) {
-        return null;
+    public List<RecruitmentSearchResponseDto> searchRecruitment(String query) {
+        return recruitmentRepository.findAllWithCompany().stream()
+                .map(it -> RecruitmentSearchResponseDto.builder()
+                        .recruitmentId(it.getId())
+                        .position(it.getPosition())
+                        .reward(it.getReward())
+                        .skill(it.getSkill())
+                        .companyName(it.getCompany().getName())
+                        .country(it.getCompany().getCountry())
+                        .region(it.getCompany().getRegion())
+                        .build())
+                .filter(it -> isSearchResult(it, query))
+                .toList();
+    }
+
+    private boolean isSearchResult(RecruitmentSearchResponseDto recruitment, String query) {
+        return query == null || query.isBlank()
+                || recruitment.getCompanyName().contains(query)
+                || recruitment.getCountry().contains(query)
+                || recruitment.getRegion().contains(query)
+                || recruitment.getPosition().contains(query)
+                || recruitment.getSkill().contains(query);
     }
 
     @Override

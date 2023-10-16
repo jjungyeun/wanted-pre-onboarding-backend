@@ -3,6 +3,7 @@ package com.wjy.wantedpreonboarding.service.impl;
 import com.wjy.wantedpreonboarding.dto.req.RecruitmentCreateDto;
 import com.wjy.wantedpreonboarding.dto.req.RecruitmentEditDto;
 import com.wjy.wantedpreonboarding.dto.res.RecruitmentDetailResponseDto;
+import com.wjy.wantedpreonboarding.dto.res.RecruitmentSearchResponseDto;
 import com.wjy.wantedpreonboarding.entity.Company;
 import com.wjy.wantedpreonboarding.entity.CompanyApplication;
 import com.wjy.wantedpreonboarding.entity.Member;
@@ -231,6 +232,92 @@ class RecruitmentServiceImplTest {
         Assertions.assertThrows(RecruitmentNotFoundException.class, () ->
                 recruitmentService.getRecruitmentDetail(recruitmentId));
 
+    }
+
+    @Test
+    @DisplayName("채용공고 목록을 검색한다.")
+    public void searchRecruitment() {
+        // given
+
+        // 공고 1 mocking
+        Long recruitmentId1 = 1L;
+        String position1 = "백엔드 주니어 개발자";
+        int reward1 = 1000000;
+        String skill1 = "Python";
+        String companyName1 = "원티드랩", country1 = "한국", region1 = "서울";
+
+        Company company1 = mock(Company.class);
+        when(company1.getName()).thenReturn(companyName1);
+        when(company1.getCountry()).thenReturn(country1);
+        when(company1.getRegion()).thenReturn(region1);
+
+        Recruitment recruitment1 = mock(Recruitment.class);
+        when(recruitment1.getId()).thenReturn(recruitmentId1);
+        when(recruitment1.getPosition()).thenReturn(position1);
+        when(recruitment1.getReward()).thenReturn(reward1);
+        when(recruitment1.getSkill()).thenReturn(skill1);
+        when(recruitment1.getCompany()).thenReturn(company1);
+
+        // 공고 2 mocking
+        Long recruitmentId2 = 1L;
+        String position2 = "프론트엔드 개발자";
+        int reward2 = 500000;
+        String skill2 = "javascript";
+        String companyName2 = "원티드코리아", country2 = "한국", region2 = "부산";
+
+        Company company2 = mock(Company.class);
+        when(company2.getName()).thenReturn(companyName2);
+        when(company2.getCountry()).thenReturn(country2);
+        when(company2.getRegion()).thenReturn(region2);
+
+        Recruitment recruitment2 = mock(Recruitment.class);
+        when(recruitment2.getId()).thenReturn(recruitmentId2);
+        when(recruitment2.getPosition()).thenReturn(position2);
+        when(recruitment2.getReward()).thenReturn(reward2);
+        when(recruitment2.getSkill()).thenReturn(skill2);
+        when(recruitment2.getCompany()).thenReturn(company2);
+
+        when(recruitmentRepository.findAllWithCompany()).thenReturn(
+                List.of(recruitment1, recruitment2)
+        );
+
+        // when - 검색어를 입력하지 않은 경우 전체 목록 조회됨
+        List<RecruitmentSearchResponseDto> responseDtos = recruitmentService.searchRecruitment(null);
+
+        // then
+        Assertions.assertEquals(2, responseDtos.size());
+
+        RecruitmentSearchResponseDto searchRes1 = responseDtos.get(0);
+        Assertions.assertEquals(recruitmentId1, searchRes1.getRecruitmentId());
+        Assertions.assertEquals(position1, searchRes1.getPosition());
+        Assertions.assertEquals(reward1, searchRes1.getReward());
+        Assertions.assertEquals(skill1, searchRes1.getSkill());
+        Assertions.assertEquals(companyName1, searchRes1.getCompanyName());
+        Assertions.assertEquals(country1, searchRes1.getCountry());
+        Assertions.assertEquals(region1, searchRes1.getRegion());
+
+        RecruitmentSearchResponseDto searchRes2 = responseDtos.get(1);
+        Assertions.assertEquals(recruitmentId2, searchRes2.getRecruitmentId());
+        Assertions.assertEquals(position2, searchRes2.getPosition());
+        Assertions.assertEquals(reward2, searchRes2.getReward());
+        Assertions.assertEquals(skill2, searchRes2.getSkill());
+        Assertions.assertEquals(companyName2, searchRes2.getCompanyName());
+        Assertions.assertEquals(country2, searchRes2.getCountry());
+        Assertions.assertEquals(region2, searchRes2.getRegion());
+
+        // when - 검색어를 입력한 경우 검색어로 필터링됨
+        List<RecruitmentSearchResponseDto> responseDtos2 = recruitmentService.searchRecruitment("java");
+
+        // then
+        Assertions.assertEquals(1, responseDtos2.size());
+        RecruitmentSearchResponseDto searchRes3 = responseDtos2.get(0);
+        Assertions.assertEquals(recruitmentId2, searchRes3.getRecruitmentId());
+        Assertions.assertEquals(position2, searchRes3.getPosition());
+        Assertions.assertEquals(reward2, searchRes3.getReward());
+        Assertions.assertEquals(skill2, searchRes3.getSkill());
+        Assertions.assertEquals(companyName2, searchRes3.getCompanyName());
+        Assertions.assertEquals(country2, searchRes3.getCountry());
+        Assertions.assertEquals(region2, searchRes3.getRegion());
     }
 
     @Test
