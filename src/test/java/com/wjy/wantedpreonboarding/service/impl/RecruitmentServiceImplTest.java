@@ -4,7 +4,10 @@ import com.wjy.wantedpreonboarding.dto.req.RecruitmentCreateDto;
 import com.wjy.wantedpreonboarding.dto.req.RecruitmentEditDto;
 import com.wjy.wantedpreonboarding.dto.res.RecruitmentDetailResponseDto;
 import com.wjy.wantedpreonboarding.entity.Company;
+import com.wjy.wantedpreonboarding.entity.CompanyApplication;
+import com.wjy.wantedpreonboarding.entity.Member;
 import com.wjy.wantedpreonboarding.entity.Recruitment;
+import com.wjy.wantedpreonboarding.exception.custom.CannotApplyMultipleTimesException;
 import com.wjy.wantedpreonboarding.exception.custom.CompanyNotFoundException;
 import com.wjy.wantedpreonboarding.exception.custom.RecruitmentNotFoundException;
 import com.wjy.wantedpreonboarding.repository.CompanyApplicationRepository;
@@ -228,5 +231,45 @@ class RecruitmentServiceImplTest {
         Assertions.assertThrows(RecruitmentNotFoundException.class, () ->
                 recruitmentService.getRecruitmentDetail(recruitmentId));
 
+    }
+
+    @Test
+    @DisplayName("채용공고에 지원한다.")
+    public void applyRecruitment() {
+        // given
+        Long recruitmentId = 1L, memberId = 100L;
+        Recruitment recruitment = mock(Recruitment.class);
+        Member member = mock(Member.class);
+
+        when(recruitmentRepository.findById(recruitmentId)).thenReturn(Optional.of(recruitment));
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+        when(applicationRepository.findByRecruitmentAndMember(recruitment, member))
+                .thenReturn(Optional.empty());
+
+        // when & then
+        recruitmentService.applyRecruitment(recruitmentId, memberId);
+    }
+
+    @Test
+    @DisplayName("이미 지원한 공고에 다시 지원할 수 없다.")
+    public void applyRecruitment_duplicate() {
+        // given
+        Long recruitmentId = 1L, memberId = 100L;
+        Recruitment recruitment = mock(Recruitment.class);
+        Member member = mock(Member.class);
+        CompanyApplication application = CompanyApplication.builder()
+                .recruitment(recruitment)
+                .member(member)
+                .build();
+
+        when(recruitmentRepository.findById(recruitmentId)).thenReturn(Optional.of(recruitment));
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+        when(applicationRepository.findByRecruitmentAndMember(recruitment, member))
+                .thenReturn(Optional.of(application));
+
+        // when & then
+        Assertions.assertThrows(CannotApplyMultipleTimesException.class, () -> {
+            recruitmentService.applyRecruitment(recruitmentId, memberId);
+        });
     }
 }

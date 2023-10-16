@@ -9,6 +9,9 @@ public enum ErrorCode {
     MEMBER_NOT_FOUND(400, "해당 사용자가 존재하지 않습니다."),
     RECRUITMENT_NOT_FOUND(400, "해당 채용공고가 존재하지 않습니다."),
 
+    CANNOT_APPLY_MULTIPLE_TIMES(400, "한 채용공고에는 한번만 지원할 수 있습니다."),
+
+
     // -------- 5xx --------
     INTERNAL_SERVER_ERROR(500,"서버에 문제가 발생했습니다.");
     ;

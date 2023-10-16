@@ -5,8 +5,12 @@ import com.wjy.wantedpreonboarding.dto.req.RecruitmentEditDto;
 import com.wjy.wantedpreonboarding.dto.res.RecruitmentDetailResponseDto;
 import com.wjy.wantedpreonboarding.dto.res.RecruitmentSearchResponseDto;
 import com.wjy.wantedpreonboarding.entity.Company;
+import com.wjy.wantedpreonboarding.entity.CompanyApplication;
+import com.wjy.wantedpreonboarding.entity.Member;
 import com.wjy.wantedpreonboarding.entity.Recruitment;
+import com.wjy.wantedpreonboarding.exception.custom.CannotApplyMultipleTimesException;
 import com.wjy.wantedpreonboarding.exception.custom.CompanyNotFoundException;
+import com.wjy.wantedpreonboarding.exception.custom.MemberNotFoundException;
 import com.wjy.wantedpreonboarding.exception.custom.RecruitmentNotFoundException;
 import com.wjy.wantedpreonboarding.repository.CompanyApplicationRepository;
 import com.wjy.wantedpreonboarding.repository.CompanyRepository;
@@ -21,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -99,6 +104,26 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     @Override
     @Transactional
     public void applyRecruitment(Long recruitmentId, Long memberId) {
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+                .orElseThrow(RecruitmentNotFoundException::new);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(MemberNotFoundException::new);
 
+        if (isAlreadyApplied(recruitment, member)) {
+            throw new CannotApplyMultipleTimesException();
+        }
+
+        applicationRepository.save(
+                CompanyApplication.builder()
+                        .recruitment(recruitment)
+                        .member(member)
+                        .build()
+        );
+    }
+
+    private boolean isAlreadyApplied(Recruitment recruitment, Member member) {
+        Optional<CompanyApplication> applicationOptional =
+                applicationRepository.findByRecruitmentAndMember(recruitment, member);
+        return applicationOptional.isPresent();
     }
 }
